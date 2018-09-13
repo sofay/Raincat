@@ -21,7 +21,7 @@ package com.raincat.manager.netty.handler;
 import com.raincat.common.enums.NettyMessageActionEnum;
 import com.raincat.common.enums.NettyResultEnum;
 import com.raincat.common.holder.LogUtil;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import com.raincat.common.netty.bean.TxTransactionGroup;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import com.raincat.manager.config.Address;
@@ -65,16 +65,16 @@ public class NettyServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        HeartBeat hb = (HeartBeat) msg;
-        TxTransactionGroup txTransactionGroup = hb.getTxTransactionGroup();
+        RequestPackage requestPackage = (RequestPackage) msg;
+        TxTransactionGroup txTransactionGroup = requestPackage.getTxTransactionGroup();
         try {
-            final NettyMessageActionEnum actionEnum = NettyMessageActionEnum.acquireByCode(hb.getAction());
+            final NettyMessageActionEnum actionEnum = NettyMessageActionEnum.acquireByCode(requestPackage.getAction());
             LogUtil.debug(LOGGER, "receive client date this action:{}", actionEnum::getDesc);
             Boolean success;
             switch (actionEnum) {
                 case HEART:
-                    hb.setAction(NettyMessageActionEnum.HEART.getCode());
-                    ctx.writeAndFlush(hb);
+                    requestPackage.setAction(NettyMessageActionEnum.HEART.getCode());
+                    ctx.writeAndFlush(requestPackage);
                     break;
                 case CREATE_GROUP:
                     final List<TxTransactionItem> items = txTransactionGroup.getItemList();
@@ -87,7 +87,7 @@ public class NettyServerMessageHandler extends ChannelInboundHandlerAdapter {
                         item.setTmDomain(Address.getInstance().getDomain());
                     }
                     success = txManagerService.saveTxTransactionGroup(txTransactionGroup);
-                    ctx.writeAndFlush(buildSendMessage(hb.getKey(), success));
+                    ctx.writeAndFlush(buildResponseMessage(requestPackage.getKey(), success));
                     break;
                 case ADD_TRANSACTION:
                     final List<TxTransactionItem> itemList = txTransactionGroup.getItemList();
@@ -97,29 +97,29 @@ public class NettyServerMessageHandler extends ChannelInboundHandlerAdapter {
                         item.setModelName(modelName);
                         item.setTmDomain(Address.getInstance().getDomain());
                         success = txManagerService.addTxTransaction(txTransactionGroup.getId(), item);
-                        ctx.writeAndFlush(buildSendMessage(hb.getKey(), success));
+                        ctx.writeAndFlush(buildResponseMessage(requestPackage.getKey(), success));
                     }
                     break;
                 case GET_TRANSACTION_GROUP_STATUS:
                     final int status = txManagerService.findTxTransactionGroupStatus(txTransactionGroup.getId());
                     txTransactionGroup.setStatus(status);
-                    hb.setTxTransactionGroup(txTransactionGroup);
-                    ctx.writeAndFlush(hb);
+                    requestPackage.setTxTransactionGroup(txTransactionGroup);
+                    ctx.writeAndFlush(requestPackage);
                     break;
                 case FIND_TRANSACTION_GROUP_INFO:
                     final List<TxTransactionItem> txTransactionItems = txManagerService.listByTxGroupId(txTransactionGroup.getId());
                     txTransactionGroup.setItemList(txTransactionItems);
-                    hb.setTxTransactionGroup(txTransactionGroup);
-                    ctx.writeAndFlush(hb);
+                    requestPackage.setTxTransactionGroup(txTransactionGroup);
+                    ctx.writeAndFlush(requestPackage);
                     break;
                 case ROLLBACK:
-                    ctx.writeAndFlush(buildSendMessage(hb.getKey(), true));
+                    ctx.writeAndFlush(buildResponseMessage(requestPackage.getKey(), true));
                     //收到客户端的回滚通知  此通知为事务发起（start）里面通知的
                     final String groupId = txTransactionGroup.getId();
                     txTransactionExecutor.rollBack(groupId);
                     break;
                 case PRE_COMMIT:
-                    ctx.writeAndFlush(buildSendMessage(hb.getKey(), true));
+                    ctx.writeAndFlush(buildResponseMessage(requestPackage.getKey(), true));
                     txTransactionExecutor.preCommit(txTransactionGroup.getId());
                     break;
                 case COMPLETE_COMMIT:
@@ -132,8 +132,8 @@ public class NettyServerMessageHandler extends ChannelInboundHandlerAdapter {
                     }
                     break;
                 default:
-                    hb.setAction(NettyMessageActionEnum.HEART.getCode());
-                    ctx.writeAndFlush(hb);
+                    requestPackage.setAction(NettyMessageActionEnum.HEART.getCode());
+                    ctx.writeAndFlush(requestPackage);
                     break;
             }
         } finally {
@@ -185,16 +185,16 @@ public class NettyServerMessageHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private HeartBeat buildSendMessage(final String key, final Boolean success) {
-        HeartBeat heartBeat = new HeartBeat();
-        heartBeat.setKey(key);
-        heartBeat.setAction(NettyMessageActionEnum.RECEIVE.getCode());
+    private RequestPackage buildResponseMessage(final String key, final Boolean success) {
+        RequestPackage requestPackage = new RequestPackage();
+        requestPackage.setKey(key);
+        requestPackage.setAction(NettyMessageActionEnum.RESPONSE.getCode());
         if (success) {
-            heartBeat.setResult(NettyResultEnum.SUCCESS.getCode());
+            requestPackage.setResult(NettyResultEnum.SUCCESS.getCode());
         } else {
-            heartBeat.setResult(NettyResultEnum.FAIL.getCode());
+            requestPackage.setResult(NettyResultEnum.FAIL.getCode());
         }
-        return heartBeat;
+        return requestPackage;
     }
 
 }

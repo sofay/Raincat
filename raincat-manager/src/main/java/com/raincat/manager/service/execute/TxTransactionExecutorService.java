@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 import com.raincat.common.enums.TransactionStatusEnum;
 import com.raincat.common.holder.LogUtil;
 import com.raincat.common.holder.httpclient.OkHttpTools;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import com.raincat.manager.config.ChannelSender;
 import com.raincat.manager.config.Constant;
@@ -68,10 +68,10 @@ public class TxTransactionExecutorService extends AbstractTxTransactionExecutor 
                         .map(item ->
                                 CompletableFuture.runAsync(() -> {
                                     ChannelSender channelSender = new ChannelSender();
-                                    HeartBeat heartBeat = ExecutorMessageTool.buildMessage(item, channelSender,
+                                    RequestPackage requestPackage = ExecutorMessageTool.buildMessage(item, channelSender,
                                             TransactionStatusEnum.ROLLBACK);
                                     if (Objects.nonNull(channelSender.getChannel())) {
-                                        channelSender.getChannel().writeAndFlush(heartBeat);
+                                        channelSender.getChannel().writeAndFlush(requestPackage);
                                     } else {
                                         LOGGER.error("txManger rollback指令失败，channel为空，事务组id：{}, 事务taskId为:{}",
                                                 txGroupId, item.getTaskKey());
@@ -97,9 +97,9 @@ public class TxTransactionExecutorService extends AbstractTxTransactionExecutor 
         try {
             txTransactionItems.forEach(item -> {
                 ChannelSender sender = new ChannelSender();
-                HeartBeat heartBeat = ExecutorMessageTool.buildMessage(item, sender, TransactionStatusEnum.COMMIT);
+                RequestPackage requestPackage = ExecutorMessageTool.buildMessage(item, sender, TransactionStatusEnum.COMMIT);
                 if (Objects.nonNull(sender.getChannel())) {
-                    sender.getChannel().writeAndFlush(heartBeat);
+                    sender.getChannel().writeAndFlush(requestPackage);
                     LogUtil.info(LOGGER, "txManger 成功发送doCommit指令 事务taskId为：{}", item::getTaskKey);
                 } else {
                     LOGGER.error("txManger 发送doCommit指令失败，channel为空，事务组id：{}, 事务taskId为:{}", txGroupId, item.getTaskKey());

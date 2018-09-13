@@ -34,7 +34,7 @@ public interface TxManagerMessageService {
      * @param txTransactionGroup 事务组
      * @return true 成功 false 失败
      */
-    Boolean saveTxTransactionGroup(TxTransactionGroup txTransactionGroup);
+    Boolean createdTxTransactionGroup(TxTransactionGroup txTransactionGroup);
 
     /**
      * 往事务组添加事务.

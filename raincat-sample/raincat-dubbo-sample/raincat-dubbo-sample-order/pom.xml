@@ -22,6 +22,11 @@
 
         <dependency>
             <groupId>com.raincat</groupId>
+            <artifactId>raincat-dubbo-sample-stock-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.raincat</groupId>
             <artifactId>raincat-spring-boot-starter-dubbo</artifactId>
         </dependency>
 

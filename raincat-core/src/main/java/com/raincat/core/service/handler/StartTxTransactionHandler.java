@@ -86,7 +86,7 @@ public class StartTxTransactionHandler implements TxTransactionHandler {
         String commitStatus = CommonConstant.TX_TRANSACTION_COMMIT_STATUS_BAD;
 
         //创建事务组信息
-        final Boolean success = txManagerMessageService.saveTxTransactionGroup(newTxTransactionGroup(groupId, waitKey, info));
+        final Boolean success = txManagerMessageService.createdTxTransactionGroup(newTxTransactionGroup(groupId, waitKey, info));
         if (success) {
             //如果发起方没有事务
             if (info.getPropagationEnum().getValue() == PropagationEnum.PROPAGATION_NEVER.getValue()) {

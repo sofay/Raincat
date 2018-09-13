@@ -29,7 +29,7 @@ public interface OrderService {
      *
      * @param order 订单实体
      */
-    void save(Order order);
+    String save(Order order);
 
     /**
      * 保存订单失败 抛出异常
@@ -47,4 +47,7 @@ public interface OrderService {
     void timeOut(Order order);
 
 
+    String invokeStock(Order order);
+
+    void invokeStockFail(Order order);
 }

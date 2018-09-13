@@ -22,8 +22,8 @@ import com.raincat.admin.dto.UserDTO;
 import com.raincat.admin.service.LoginService;
 import com.raincat.common.holder.httpclient.AjaxResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,13 +40,13 @@ public class LoginController {
         this.loginService = loginService;
     }
 
-    @PostMapping("/login")
+    @RequestMapping("/login")
     public AjaxResponse login(final @RequestBody UserDTO userDTO) {
         final Boolean login = loginService.login(userDTO.getUserName(), userDTO.getPassword());
         return AjaxResponse.success(login);
     }
 
-    @PostMapping("/logout")
+    @RequestMapping("/logout")
     public AjaxResponse logout() {
         return AjaxResponse.success(loginService.logout());
     }

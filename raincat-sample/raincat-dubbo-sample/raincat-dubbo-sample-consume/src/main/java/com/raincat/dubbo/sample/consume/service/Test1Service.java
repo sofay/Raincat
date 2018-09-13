@@ -75,5 +75,7 @@ public interface Test1Service {
      */
     String testStockTimeOut();
 
+    String testOrderInvokeStock();
 
+    String testOrderInvokeStockFail();
 }

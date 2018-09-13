@@ -18,5 +18,8 @@
     <dubbo:service interface="com.raincat.dubbo.sample.order.api.service.OrderService"
                    ref="orderService"/>
 
-
+    <dubbo:reference timeout="500000000"
+                     interface="com.raincat.dubbo.sample.stock.api.service.StockService"
+                     id="stockService"
+                     retries="0" check="false"/>
 </beans>

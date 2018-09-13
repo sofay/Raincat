@@ -20,7 +20,7 @@ package com.raincat.manager.config;
 
 import com.raincat.common.enums.NettyMessageActionEnum;
 import com.raincat.common.enums.TransactionStatusEnum;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import com.raincat.common.netty.bean.TxTransactionGroup;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import com.raincat.manager.socket.SocketManager;
@@ -35,10 +35,10 @@ import java.util.Objects;
  */
 public class ExecutorMessageTool {
 
-    public static HeartBeat buildMessage(final TxTransactionItem item,
-                                         final ChannelSender channelSender,
-                                         final TransactionStatusEnum transactionStatusEnum) {
-        HeartBeat heartBeat = new HeartBeat();
+    public static RequestPackage buildMessage(final TxTransactionItem item,
+                                              final ChannelSender channelSender,
+                                              final TransactionStatusEnum transactionStatusEnum) {
+        RequestPackage requestPackage = new RequestPackage();
         Channel channel = SocketManager.getInstance().getChannelByModelName(item.getModelName());
         if (Objects.nonNull(channel)) {
             if (channel.isActive()) {
@@ -47,16 +47,16 @@ public class ExecutorMessageTool {
         }
         TxTransactionGroup txTransactionGroup = new TxTransactionGroup();
         if (TransactionStatusEnum.ROLLBACK.getCode() == transactionStatusEnum.getCode()) {
-            heartBeat.setAction(NettyMessageActionEnum.ROLLBACK.getCode());
+            requestPackage.setAction(NettyMessageActionEnum.ROLLBACK.getCode());
             item.setStatus(TransactionStatusEnum.ROLLBACK.getCode());
             txTransactionGroup.setStatus(TransactionStatusEnum.ROLLBACK.getCode());
         } else if (TransactionStatusEnum.COMMIT.getCode() == transactionStatusEnum.getCode()) {
-            heartBeat.setAction(NettyMessageActionEnum.COMPLETE_COMMIT.getCode());
+            requestPackage.setAction(NettyMessageActionEnum.COMPLETE_COMMIT.getCode());
             item.setStatus(TransactionStatusEnum.COMMIT.getCode());
             txTransactionGroup.setStatus(TransactionStatusEnum.COMMIT.getCode());
         }
         txTransactionGroup.setItemList(Collections.singletonList(item));
-        heartBeat.setTxTransactionGroup(txTransactionGroup);
-        return heartBeat;
+        requestPackage.setTxTransactionGroup(txTransactionGroup);
+        return requestPackage;
     }
 }

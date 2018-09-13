@@ -21,7 +21,7 @@ package com.raincat.common.netty.serizlize.kryo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.pool.KryoFactory;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
@@ -35,7 +35,7 @@ public final class KryoPoolFactory {
     private KryoFactory factory = () -> {
         Kryo kryo = new Kryo();
         kryo.setReferences(false);
-        kryo.register(HeartBeat.class);
+        kryo.register(RequestPackage.class);
         kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
         return kryo;
     };

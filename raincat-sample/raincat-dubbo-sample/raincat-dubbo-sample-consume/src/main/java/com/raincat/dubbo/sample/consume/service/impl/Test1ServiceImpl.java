@@ -172,7 +172,8 @@ public class Test1ServiceImpl implements Test1Service {
         order.setNumber(IdWorkerUtils.getInstance().createUUID());
         order.setStatus(0);
         order.setType(0);
-        orderService.save(order);
+        String obj = orderService.save(order);
+        System.err.println(obj);
 
         Stock stock = new Stock();
         stockService.fail(stock);
@@ -208,5 +209,51 @@ public class Test1ServiceImpl implements Test1Service {
         stockService.timeOut(stock);
 
         return "stock_timeOut";
+    }
+
+    @Override
+    @TxTransaction
+    public String testOrderInvokeStock() {
+        String name = "hello_demo1";
+        Test1 test = new Test1();
+        test.setName(name);
+        test1Mapper.save(test);
+
+        Order order = new Order();
+        order.setCreateTime(new Date());
+        order.setNumber(IdWorkerUtils.getInstance().createUUID());
+        order.setStatus(0);
+        order.setType(0);
+        orderService.invokeStock(order);
+
+        Stock stock = new Stock();
+        stock.setName(IdWorkerUtils.getInstance().buildPartNumber());
+        stock.setNumber(100);
+        stock.setCreateTime(new Date());
+        stockService.save(stock);
+        return "testOrderInvokeStock";
+    }
+
+    @Override
+    @TxTransaction
+    public String testOrderInvokeStockFail() {
+        String name = "hello_demo1";
+        Test1 test = new Test1();
+        test.setName(name);
+        test1Mapper.save(test);
+
+        Order order = new Order();
+        order.setCreateTime(new Date());
+        order.setNumber(IdWorkerUtils.getInstance().createUUID());
+        order.setStatus(0);
+        order.setType(0);
+        orderService.invokeStockFail(order);
+
+        Stock stock = new Stock();
+        stock.setName(IdWorkerUtils.getInstance().buildPartNumber());
+        stock.setNumber(100);
+        stock.setCreateTime(new Date());
+        stockService.save(stock);
+        return "testOrderInvokeStockFail";
     }
 }

@@ -19,7 +19,6 @@
 package com.raincat.core.service.handler;
 
 import com.raincat.common.bean.TxTransactionInfo;
-import com.raincat.common.constant.CommonConstant;
 import com.raincat.common.enums.NettyResultEnum;
 import com.raincat.common.enums.TransactionRoleEnum;
 import com.raincat.common.enums.TransactionStatusEnum;
@@ -87,9 +86,6 @@ public class ActorTxTransactionHandler implements TxTransactionHandler {
                 .execute(() -> {
                     TxTransactionLocal.getInstance().setTxGroupId(info.getTxGroupId());
                     final String waitKey = IdWorkerUtils.getInstance().createTaskKey();
-
-                    String commitStatus = CommonConstant.TX_TRANSACTION_COMMIT_STATUS_BAD;
-
                     final BlockTask waitTask = BlockTaskHelper.getInstance().getTask(waitKey);
                     DefaultTransactionDefinition def = new DefaultTransactionDefinition();
                     def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);

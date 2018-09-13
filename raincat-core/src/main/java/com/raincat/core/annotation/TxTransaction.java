@@ -43,5 +43,5 @@ public @interface TxTransaction {
      *
      * @return 多少秒
      */
-    int waitMaxTime() default 60;
+    int waitMaxTime() default 600;
 }

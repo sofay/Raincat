@@ -23,7 +23,7 @@ import com.raincat.common.enums.NettyMessageActionEnum;
 import com.raincat.common.enums.NettyResultEnum;
 import com.raincat.common.holder.IdWorkerUtils;
 import com.raincat.common.holder.LogUtil;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import com.raincat.common.netty.bean.TxTransactionGroup;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import com.raincat.core.concurrent.task.BlockTask;
@@ -56,7 +56,7 @@ public class NettyClientMessageHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyClientMessageHandler.class);
 
-    private static final HeartBeat HEART_BEAT = new HeartBeat();
+    private static final RequestPackage HEART_BEAT = new RequestPackage();
 
     private static volatile ChannelHandlerContext ctx;
 
@@ -68,32 +68,32 @@ public class NettyClientMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) {
-        HeartBeat heartBeat = (HeartBeat) msg;
-        final NettyMessageActionEnum actionEnum = NettyMessageActionEnum.acquireByCode(heartBeat.getAction());
+        RequestPackage requestPackage = (RequestPackage) msg;
+        final NettyMessageActionEnum actionEnum = NettyMessageActionEnum.acquireByCode(requestPackage.getAction());
         LogUtil.debug(LOGGER, "receive tx manage info :{}", actionEnum::getDesc);
        /* executorService.execute(() -> {*/
         try {
             switch (actionEnum) {
                 case HEART:
                     break;
-                case RECEIVE:
-                    receivedCommand(heartBeat.getKey(), heartBeat.getResult());
+                case RESPONSE:
+                    receivedCommand(requestPackage.getKey(), requestPackage.getResult());
                     break;
                 case ROLLBACK:
-                    notify(heartBeat);
+                    notify(requestPackage);
                     break;
                 case COMPLETE_COMMIT:
-                    notify(heartBeat);
+                    notify(requestPackage);
                     break;
                 case GET_TRANSACTION_GROUP_STATUS:
-                    final BlockTask blockTask = BlockTaskHelper.getInstance().getTask(heartBeat.getKey());
-                    final TxTransactionGroup txTransactionGroup = heartBeat.getTxTransactionGroup();
+                    final BlockTask blockTask = BlockTaskHelper.getInstance().getTask(requestPackage.getKey());
+                    final TxTransactionGroup txTransactionGroup = requestPackage.getTxTransactionGroup();
                     blockTask.setAsyncCall(objects -> txTransactionGroup.getStatus());
                     blockTask.signal();
                     break;
                 case FIND_TRANSACTION_GROUP_INFO:
-                    final BlockTask task = BlockTaskHelper.getInstance().getTask(heartBeat.getKey());
-                    task.setAsyncCall(objects -> heartBeat.getTxTransactionGroup());
+                    final BlockTask task = BlockTaskHelper.getInstance().getTask(requestPackage.getKey());
+                    task.setAsyncCall(objects -> requestPackage.getTxTransactionGroup());
                     task.signal();
                     break;
                 default:
@@ -107,9 +107,9 @@ public class NettyClientMessageHandler extends ChannelInboundHandlerAdapter {
 
     }
 
-    private void notify(final HeartBeat heartBeat) {
+    private void notify(final RequestPackage requestPackage) {
         final List<TxTransactionItem> txTransactionItems =
-                heartBeat.getTxTransactionGroup().getItemList();
+                requestPackage.getTxTransactionGroup().getItemList();
         if (CollectionUtils.isNotEmpty(txTransactionItems)) {
             final TxTransactionItem item = txTransactionItems.get(0);
             final BlockTask task = BlockTaskHelper.getInstance().getTask(item.getTaskKey());
@@ -175,23 +175,23 @@ public class NettyClientMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * send message to tx manager .
      *
-     * @param heartBeat {@linkplain HeartBeat }
+     * @param requestPackage {@linkplain RequestPackage }
      * @return Object
      */
-    public Object sendTxManagerMessage(final HeartBeat heartBeat) {
+    public Object sendTxManagerMessage(final RequestPackage requestPackage) {
         if (ctx != null && ctx.channel() != null && ctx.channel().isActive()) {
             final String sendKey = IdWorkerUtils.getInstance().createTaskKey();
             BlockTask sendTask = BlockTaskHelper.getInstance().getTask(sendKey);
-            heartBeat.setKey(sendKey);
-            ctx.writeAndFlush(heartBeat);
+            requestPackage.setKey(sendKey);
+            ctx.writeAndFlush(requestPackage);
             final ScheduledFuture<?> schedule =
                     ctx.executor().schedule(() -> {
                         if (!sendTask.isNotify()) {
                             if (NettyMessageActionEnum.GET_TRANSACTION_GROUP_STATUS.getCode()
-                                    == heartBeat.getAction()) {
+                                    == requestPackage.getAction()) {
                                 sendTask.setAsyncCall(objects -> NettyResultEnum.TIME_OUT.getCode());
                             } else if (NettyMessageActionEnum.FIND_TRANSACTION_GROUP_INFO.getCode()
-                                    == heartBeat.getAction()) {
+                                    == requestPackage.getAction()) {
                                 sendTask.setAsyncCall(objects -> null);
                             } else {
                                 sendTask.setAsyncCall(objects -> false);
@@ -223,11 +223,11 @@ public class NettyClientMessageHandler extends ChannelInboundHandlerAdapter {
     /**
      * async Send message to tx Manager.
      *
-     * @param heartBeat {@linkplain HeartBeat }
+     * @param requestPackage {@linkplain RequestPackage }
      */
-    public void asyncSendTxManagerMessage(final HeartBeat heartBeat) {
+    public void asyncSendTxManagerMessage(final RequestPackage requestPackage) {
         if (ctx != null && ctx.channel() != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(heartBeat);
+            ctx.writeAndFlush(requestPackage);
         }
     }
 

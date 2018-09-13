@@ -39,10 +39,10 @@ public class LoginServiceImpl implements LoginService {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginServiceImpl.class);
 
-    @Value("${tx.admin.userName}")
+    @Value("${tx.admin.userName:root}")
     private String userName;
 
-    @Value("${tx.admin.password}")
+    @Value("${tx.admin.password:root}")
     private String password;
 
     @Override

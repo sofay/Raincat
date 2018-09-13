@@ -20,7 +20,7 @@ package com.raincat.common.holder.httpclient;
 import com.raincat.common.enums.NettyMessageActionEnum;
 import com.raincat.common.enums.TransactionStatusEnum;
 import com.raincat.common.holder.IdWorkerUtils;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import com.raincat.common.netty.bean.TxTransactionGroup;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import com.raincat.common.netty.serizlize.kryo.KryoPoolFactory;
@@ -65,11 +65,11 @@ public class SerializeTest {
             txTransactionGroup.setItemList(items);
 
 
-            HeartBeat heartBeat = new HeartBeat();
-            heartBeat.setAction(NettyMessageActionEnum.HEART.getCode());
-            heartBeat.setTxTransactionGroup(txTransactionGroup);
+            RequestPackage requestPackage = new RequestPackage();
+            requestPackage.setAction(NettyMessageActionEnum.HEART.getCode());
+            requestPackage.setTxTransactionGroup(txTransactionGroup);
 
-            kryoSerialization.serialize(byteArrayOutputStream, heartBeat);
+            kryoSerialization.serialize(byteArrayOutputStream, requestPackage);
 
 
             byte[] body = byteArrayOutputStream.toByteArray();
@@ -77,7 +77,7 @@ public class SerializeTest {
 
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body);
 
-            final HeartBeat heartBeat1 = (HeartBeat)
+            final RequestPackage requestPackage1 = (RequestPackage)
                     kryoSerialization.deserialize(byteArrayInputStream);
 
         }

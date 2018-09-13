@@ -20,7 +20,7 @@ package com.raincat.manager.service.execute;
 
 import com.raincat.common.enums.TransactionStatusEnum;
 import com.raincat.common.holder.LogUtil;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import com.raincat.manager.config.ChannelSender;
 import com.raincat.manager.config.ExecutorMessageTool;
@@ -68,10 +68,10 @@ public class HttpTransactionExecutor {
                     .map(item ->
                             CompletableFuture.runAsync(() -> {
                                 ChannelSender channelSender = new ChannelSender();
-                                final HeartBeat heartBeat = ExecutorMessageTool.buildMessage(item,
+                                final RequestPackage requestPackage = ExecutorMessageTool.buildMessage(item,
                                         channelSender, transactionStatusEnum);
                                 if (Objects.nonNull(channelSender.getChannel())) {
-                                    channelSender.getChannel().writeAndFlush(heartBeat);
+                                    channelSender.getChannel().writeAndFlush(requestPackage);
                                 } else {
                                     LOGGER.error("txMange {},指令失败，channel为空，事务组id：{}, 事务taskId为:{}",
                                             transactionStatusEnum.getDesc(), item.getTxGroupId(), item.getTaskKey());

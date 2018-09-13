@@ -25,11 +25,11 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * HeartBeat.
+ * RequestPackage.
  * @author xiaoyu
  */
 @Data
-public class HeartBeat implements Serializable {
+public class RequestPackage implements Serializable {
 
     private static final long serialVersionUID = 4183978848464761529L;
 

@@ -28,6 +28,7 @@ import com.raincat.admin.vo.TxTransactionGroupVO;
 import com.raincat.common.constant.CommonConstant;
 import com.raincat.common.enums.TransactionRoleEnum;
 import com.raincat.common.enums.TransactionStatusEnum;
+import com.raincat.common.holder.DateUtils;
 import com.raincat.common.netty.bean.TxTransactionItem;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -35,11 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.text.ParseException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -102,7 +100,13 @@ public class RedisTxTransactionGroupServiceImpl implements TxTransactionGroupSer
                 }
                 groupVO.setItemVOList(values.stream()
                         .filter(item -> TransactionRoleEnum.GROUP.getCode() != item.getRole())
-                        .map(ConvertHelper::buildTxItemVO).collect(Collectors.toList()));
+                        .map(ConvertHelper::buildTxItemVO).sorted((o1, o2) -> {
+                            try {
+                                return DateUtils.parseLocalDateTime(o1.getCreateDate()).compareTo(DateUtils.parseLocalDateTime(o2.getCreateDate()));
+                            } catch (ParseException e) {
+                                throw new IllegalArgumentException(e);
+                            }
+                        }).collect(Collectors.toList()));
 
             }
             return groupVO;

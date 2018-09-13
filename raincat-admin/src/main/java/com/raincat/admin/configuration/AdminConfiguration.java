@@ -40,6 +40,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import redis.clients.jedis.JedisPoolConfig;
@@ -62,6 +63,11 @@ public class AdminConfiguration {
             @Override
             public void addInterceptors(final InterceptorRegistry registry) {
                 registry.addInterceptor(new AuthInterceptor()).addPathPatterns("/**");
+            }
+
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//                registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
             }
         };
     }

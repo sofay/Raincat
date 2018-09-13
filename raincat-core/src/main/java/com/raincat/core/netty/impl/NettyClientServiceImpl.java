@@ -28,11 +28,7 @@ import com.raincat.core.netty.handler.NettyClientHandlerInitializer;
 import com.raincat.core.service.impl.TxManagerLocator;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.epoll.EpollChannelOption;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
@@ -134,7 +130,7 @@ public class NettyClientServiceImpl implements NettyClientService, DisposableBea
         final TxManagerServer txManagerServer = TxManagerLocator.getInstance().locator();
         if (Objects.nonNull(txManagerServer)
                 && StringUtils.isNoneBlank(txManagerServer.getHost())
-                && Objects.nonNull(txManagerServer.getPort())) {
+                && Objects.nonNull(txManagerServer.getPort())) { // relink?
             host = txManagerServer.getHost();
             port = txManagerServer.getPort();
         }

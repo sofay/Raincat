@@ -76,7 +76,7 @@ public enum NettyMessageActionEnum {
     /**
      * Receive netty message action enum.
      */
-    RECEIVE(9, "接收"),
+    RESPONSE(9, "响应包"),
 
     /**
      * Get transaction group netty message action enum.

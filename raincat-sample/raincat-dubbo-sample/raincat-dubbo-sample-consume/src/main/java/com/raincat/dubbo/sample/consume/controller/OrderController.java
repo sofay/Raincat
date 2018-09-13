@@ -19,9 +19,7 @@ package com.raincat.dubbo.sample.consume.controller;
 
 import com.raincat.dubbo.sample.consume.service.Test1Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -34,15 +32,13 @@ public class OrderController {
     @Autowired
     private Test1Service test1Service;
 
-    @ResponseBody
-    @PostMapping("/save")
+    @RequestMapping("/save")
     public String save() {
         return test1Service.save();
     }
 
 
-    @ResponseBody
-    @PostMapping("/orderFail")
+    @RequestMapping("/orderFail")
     public String orderFail() {
         try {
             test1Service.testOrderFail();
@@ -52,8 +48,7 @@ public class OrderController {
         return "orderFail";
     }
 
-    @ResponseBody
-    @PostMapping("/orderTimeOut")
+    @RequestMapping("/orderTimeOut")
     public String orderTimeOut() {
 
         try {
@@ -66,8 +61,7 @@ public class OrderController {
     }
 
 
-    @ResponseBody
-    @PostMapping("/stockFail")
+    @RequestMapping("/stockFail")
     public String stockFail() {
         try {
             test1Service.testStockFail();
@@ -79,8 +73,7 @@ public class OrderController {
 
     }
 
-    @ResponseBody
-    @PostMapping("/stockTimeOut")
+    @RequestMapping("/stockTimeOut")
     public String stockTimeOut() {
 
         try {
@@ -93,5 +86,29 @@ public class OrderController {
 
     }
 
+    @RequestMapping("/orderStock")
+    public String orderStock() {
 
+        try {
+            test1Service.testOrderInvokeStock();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "orderStock  rollback";
+        }
+        return "orderStock";
+
+    }
+
+    @RequestMapping("/orderStockFail")
+    public String orderStockFail() {
+
+        try {
+            test1Service.testOrderInvokeStockFail();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "orderStockFail  rollback";
+        }
+        return "orderStockFail";
+
+    }
 }

@@ -22,7 +22,7 @@ import com.dyuproject.protostuff.LinkedBuffer;
 import com.dyuproject.protostuff.ProtostuffIOUtil;
 import com.dyuproject.protostuff.Schema;
 import com.raincat.common.netty.NettyTransferSerialize;
-import com.raincat.common.netty.bean.HeartBeat;
+import com.raincat.common.netty.bean.RequestPackage;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
@@ -46,8 +46,8 @@ public class ProtostuffSerialize implements NettyTransferSerialize {
     @Override
     public Object deserialize(final InputStream input) {
         try {
-            HeartBeat message = objenesis.newInstance(HeartBeat.class);
-            Schema<HeartBeat> schema = getSchema(HeartBeat.class);
+            RequestPackage message = objenesis.newInstance(RequestPackage.class);
+            Schema<RequestPackage> schema = getSchema(RequestPackage.class);
             ProtostuffIOUtil.mergeFrom(input, message, schema);
             return message;
         } catch (Exception e) {

@@ -19,9 +19,7 @@ package com.raincat.dubbo.sample.consume.controller;
 
 import com.raincat.dubbo.sample.consume.service.Test1Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -34,8 +32,7 @@ public class IndexController {
     @Autowired
     private Test1Service test1Service;
 
-    @ResponseBody
-    @PostMapping("/index")
+    @RequestMapping("/index")
     public String findTxManagerServer() {
         return "hello index";
     }
