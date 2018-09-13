@@ -18,8 +18,7 @@
 
 package com.raincat.dubbo.interceptor;
 
-import com.alibaba.dubbo.rpc.RpcContext;
-import com.raincat.common.constant.CommonConstant;
+import com.raincat.core.concurrent.threadlocal.TxTransactionLocal;
 import com.raincat.core.interceptor.TxTransactionInterceptor;
 import com.raincat.core.service.AspectTransactionService;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -42,7 +41,7 @@ public class DubboTxTransactionInterceptor implements TxTransactionInterceptor {
 
     @Override
     public Object interceptor(final ProceedingJoinPoint pjp) throws Throwable {
-        String groupId = RpcContext.getContext().getAttachment(CommonConstant.TX_TRANSACTION_GROUP);
+        String groupId = TxTransactionLocal.getInstance().getTxGroupId();
         return aspectTransactionService.invoke(groupId, pjp);
     }
 

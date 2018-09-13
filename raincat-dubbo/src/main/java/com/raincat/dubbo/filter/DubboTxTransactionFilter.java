@@ -33,14 +33,16 @@ import com.raincat.core.concurrent.threadlocal.TxTransactionLocal;
  * DubboTxTransactionFilter.
  * @author xiaoyu
  */
-@Activate(group = {Constants.SERVER_KEY, Constants.CONSUMER})
+@Activate(group = {Constants.PROVIDER, Constants.CONSUMER})
 public class DubboTxTransactionFilter implements Filter {
 
     @Override
     public Result invoke(final Invoker<?> invoker, final Invocation invocation) throws RpcException {
-        if (RpcContext.getContext().isConsumerSide()) {
+        if (RpcContext.getContext().isConsumerSide()) { // 消费方一般自己生成事务组id或者由上游的消费方传递过来
             RpcContext.getContext().setAttachment(CommonConstant.TX_TRANSACTION_GROUP,
                     TxTransactionLocal.getInstance().getTxGroupId());
+        } else { // 如果是提供方那么先将上游传递过来的事务组id设置到本地线程变量，以便继续往下调用时正常传递
+            TxTransactionLocal.getInstance().setTxGroupId(RpcContext.getContext().getAttachment(CommonConstant.TX_TRANSACTION_GROUP));
         }
         return invoker.invoke(invocation);
     }
